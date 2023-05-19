@@ -1,13 +1,15 @@
 # SCC2023
 ## Project Title
 
-Simple overview of use/purpose. test
+A remote medicare suite, including a patient client, doctor client, a pharmacy client, and a chatbot pre-trained in symptom trends.
 
 ### Description
 
 An in-depth paragraph about your project and overview of use.
 
 ### Getting Started
+
+The patient can inquire about medical concerns to the chatbot (for example, given symptom XYZ, what should I do?). The bot can then dismiss the concerns (nicely), suggest an OTC (over the counter) prescription for minor sicknesses, or recommend doctor’s appointment. In the third case (or a patient override), a diagnostic request will be sent to a doctor. The doctor, from the doctor client can then chat with the patient to discuss & diagnose, or schedule a remote or in-person appointment, whichever they deem necessary. After the chat or appointment, they can then publish prescriptions to a pharmacy. The pharmacy will receive this request from their client, and make deliveries accordingly.
 
 #### Dependencies
 
