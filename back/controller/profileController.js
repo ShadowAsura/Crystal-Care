@@ -1,5 +1,5 @@
 const { body, query, validationResult } = require('express-validator');
-const {ObjectId} = require("mongodb");
+const { ObjectId } = require("mongodb");
 
 const db = require("../db.js").db("Medicare");
 const auth = require("./core.js").authenticator;
@@ -13,14 +13,14 @@ exports.getDoctor = [
 		.isString()
 		.withMessage("Invalid Doctor name"),
 	async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) 
-            return res.status(400).json({errors: errors.array()});
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) 
+				return res.status(400).json({errors: errors.array()});
 
 		let query = { name: req.query.name };	
 		const user = await users.findOne(query);
 		if (!user || user.patient)
-            return res.status(404).json({errors: "None such doctor"});
+			return res.status(404).json({errors: "None such doctor"});
 
 		query = { userId: user._id };
 		const profile = await profiles.findOne(query);
@@ -38,18 +38,16 @@ exports.getPatient = [
 		.isString()
 		.withMessage("Invalid Patient name"),
 	async (req, res) => {
-	    const errors = validationResult(req);
-        if (!errors.isEmpty()) 
-            return res.status(400).json({errors: errors.array()});
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) 
+			return res.status(400).json({errors: errors.array()});
 
-		let query = { name: req.query.name };	
-		const user = await users.findOne(query);
+		const user = await users.findOne({ name: req.query.name });
 
 		if (!user || !user.patient)
-            return res.status(404).json({errors: "None such patient"});
+			return res.status(404).json({errors: "None such patient"});
 
-		query = { userId: user._id };
-		const profile = await profiles.findOne(query);
+		const profile = await profiles.findOne({ userId: user._id });
 		if (!profile) 
 			throw Error("No profile found for user, shouldn't happen.");	
 
@@ -70,14 +68,14 @@ exports.edit = [
 		.withMessage("Invalid target profile Id"),
 	async (req, res) => {
 		const errors = validationResult(req);
-        if (!errors.isEmpty()) 
-            return res.status(400).json({errors: errors.array()});
+		if (!errors.isEmpty()) 
+			return res.status(400).json({errors: errors.array()});
 
 		const b = req.body;
 		const filter = { _id : new ObjectId(b.profile._id) };
 		const profile = await profiles.findOne(filter);
 		if (!profile)
-            return res.status(404).json({errors: "None such profile"});
+			return res.status(404).json({errors: "None such profile"});
 
 			
 		const update = { $set: {} };

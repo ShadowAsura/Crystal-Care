@@ -12,7 +12,7 @@ app.use(cors());
 app.use(cookieParser(process.env.COOKIE_SECRET))
 app.use('/api/', router);
 
-async function init () {
+async function init() {
 	await client.connect();
 }
 

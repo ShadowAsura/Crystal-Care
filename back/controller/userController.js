@@ -71,10 +71,9 @@ exports.register = [
 		.isBoolean()
 		.withMessage("Invalid patient parameter"),
 	async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) 
-            return res.status(400).json({ errors: errors.array() });
-        
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) 
+			return res.status(400).json({ errors: errors.array() });   
 
 		console.log("registering..");	
 
@@ -110,9 +109,9 @@ exports.login = [
 		.isString()
 		.withMessage("Invalid password"),
 	async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) 
-            return res.status(400).json({ errors: errors.array() });
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) 
+			return res.status(400).json({ errors: errors.array() });
 		
 		console.log("logging in..");	
 		const b = req.body;
