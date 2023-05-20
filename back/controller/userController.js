@@ -1,6 +1,8 @@
 const coll = require("../db.js").db("Medicare").collection("users");
 const core = require("./core.js");
 const { body, validationResult } = require('express-validator');
+const crypto = require('crypto');
+const argon2 = require('argon2');
 
 /* 
 Fetch Tester:
@@ -77,12 +79,16 @@ exports.register = [
 
 		console.log("registering..");	
 
+		let salt = Buffer.from(crypto.randomBytes(4)).toString('hex');
+
 		const b = req.body;
 		const user = {
-			name: 	b.name,
-			age: 	b.age,
-			password: 	b.password,
-			patient: 	b.patient
+			name: b.name,
+			age: b.age,
+			//.hash() returns a string
+			password: await argon2.hash(b.password+salt),
+			patient: b.patient,
+			salt
 		};
 
 		// If user already exists
@@ -94,7 +100,7 @@ exports.register = [
 
 		// Make profile
 		user.profileId = core.makeProfileFor(user);
-		
+
 		return res.status(201);
 	}
 ];
@@ -120,7 +126,7 @@ exports.login = [
 		if (!user) 
 			return res.status(400).send({errors: `No user named '${user.name}'.`});
 
-		if (user.password != b.password) 
+		if (user.password != await argon2.hash(b.password+b.salt))
 			return res.status(400).send({errors: `Password incorrect.`});
 
 		// Authenticated, generate token.
