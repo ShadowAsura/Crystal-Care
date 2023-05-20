@@ -1,4 +1,5 @@
-const db = require("../db.js").db("Medicare");
+const coll = require("../db.js").db("Medicare").collection("users");
+const core = require("./core.js");
 const { body, validationResult } = require('express-validator');
 
 /* 
@@ -52,30 +53,6 @@ fetch("http://localhost:3030/api/secret", {
 }).then(res => res.json()).then(console.log)
  */
 
-exports.authenticator = [
-	body("user.name")
-		.exists()
-		.isString()
-		.withMessage("No user claims found."),
-	async (req, res, next) => {
-		console.log(req.body);
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) 
-            return res.status(400).json({ errors: errors.array() });
-
-		console.log("authenticating..");
-
-		console.log(req.cookies);
-		console.log(req.signedCookies);
-		const cookie = req.signedCookies['session-tok'];
-		if (!cookie || cookie != req.body.user.name)
-			return res.status(401).end();
-
-		console.log("authorized.");
-		next();
-	}
-];
-
 exports.register = [
 	body("name")
 		.exists()
@@ -89,6 +66,10 @@ exports.register = [
 		.exists()
 		.isString()
 		.withMessage("Invalid password"),
+	body("patient")
+		.exists()
+		.isBoolean()
+		.withMessage("Invalid patient parameter"),
 	async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) 
@@ -96,22 +77,25 @@ exports.register = [
         
 
 		console.log("registering..");	
-		const users = db.collection('users');
 
 		const b = req.body;
 		const user = {
 			name: 	b.name,
 			age: 	b.age,
-			password: 	b.password
+			password: 	b.password,
+			patient: 	b.patient
 		};
 
 		// If user already exists
-		if (await users.findOne({name: user.name}) != null) 
-			return res.status(400).send(`User named '${user.name}' already exists.`);
+		if (await coll.findOne({name: user.name}) != null) 
+			return res.status(400).send({errors: `User named '${user.name}' already exists.`});
+		
+		// Insert to db
+		user._id = (await coll.insertOne(user)).insertedId;
 
-		// Insert to DB
-		await users.insertOne(user);
-
+		// Make profile
+		user.profileId = core.makeProfileFor(user);
+		
 		return res.status(201);
 	}
 ];
@@ -131,15 +115,14 @@ exports.login = [
             return res.status(400).json({ errors: errors.array() });
 		
 		console.log("logging in..");	
-		const users = db.collection('users');
 		const b = req.body;
 
-		const user = await users.findOne({name: b.name});
+		const user = await coll.findOne({name: b.name});
 		if (!user) 
-			return res.status(400).send(`No user named '${user.name}'.`);
+			return res.status(400).send({errors: `No user named '${user.name}'.`});
 
 		if (user.password != b.password) 
-			return res.status(400).send(`Password incorrect.`);
+			return res.status(400).send({errors: `Password incorrect.`});
 
 		// Authenticated, generate token.
 		res.cookie("session-tok", user.name, { maxAge: 360000, signed: true });
@@ -149,7 +132,7 @@ exports.login = [
 ];
 
 exports.logout = [
-	exports.authenticator,
+	core.authenticator,
 	async (req, res) => {
 		console.log("logging out..");	
 
