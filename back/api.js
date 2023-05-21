@@ -23,15 +23,12 @@ router.post('/profile/doctor', 	profileController.getDoctor);
 router.post('/profile/patient', profileController.getPatient);
 router.post('/profile/edit', 	profileController.edit);
 
-/*
-Thread Make (title)
-Thread Add (ID, member)
-Load thread (ID) [load messages, start ws]
-*/
 
-router.put ('/thread/put', 			 threadController.put);
-router.post('/thread/:threadId/add', threadController.addUser);
-router.post('/thread/:threadId/get', threadController.get);
+router.put ('/thread/put', 			 threadController.put); 		// Spawns a new thread with only the client
+router.post('/thread/:threadId/add', threadController.addUser); 	// Adds user to a thread. The client must be in the thread in question
+router.post('/thread/:threadId/get', threadController.get); 		// Returns the thread's document. Only relevant information are the mails and
+																	// members, the rest are ObjectID's and is illegible to the client. 
+																	// (I might make it so it only returns the mails & members later)
 
 /*
 router.post('/documents/get', auth, documentController.get);
