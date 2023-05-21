@@ -1,7 +1,6 @@
 const coll = require("../db.js").db("Medicare").collection("users");
 const core = require("./core.js");
 const { body, validationResult } = require('express-validator');
-const crypto = require('crypto');
 const argon2 = require('argon2');
 
 /* 
@@ -16,7 +15,8 @@ fetch("http://localhost:3030/api/register", {
     body: JSON.stringify({
         name: "le bron james",
         age: 69,
-        password: "1234"
+        password: "1234",
+		patient: true,
     })
 });
 
@@ -79,16 +79,12 @@ exports.register = [
 
 		console.log("registering..");	
 
-		let salt = Buffer.from(crypto.randomBytes(4)).toString('hex');
-
 		const b = req.body;
 		const user = {
 			name: b.name,
 			age: b.age,
-			//.hash() returns a string
-			password: await argon2.hash(b.password+salt),
+			password: await argon2.hash(b.password),
 			patient: b.patient,
-			salt
 		};
 
 		// If user already exists
@@ -101,7 +97,7 @@ exports.register = [
 		// Make profile
 		user.profileId = core.makeProfileFor(user);
 
-		return res.status(201);
+		return res.status(201).end();
 	}
 ];
 
@@ -126,19 +122,19 @@ exports.login = [
 		if (!user) 
 			return res.status(400).send({errors: `No user named '${user.name}'.`});
 
-		if (user.password != await argon2.hash(b.password+b.salt))
+		if (!argon2.verify(user.password, b.password))
 			return res.status(400).send({errors: `Password incorrect.`});
 
 		// Authenticated, generate token.
 		res.cookie("session-tok", user.name, { maxAge: 360000, signed: true });
 
-		return res.status(201).end();
+		return res.status(201).json({ name: user.name, _id: user._id });
 	}
 ];
 
 exports.logout = [
 	core.authenticator,
-	async (req, res) => {
+	async (_, res) => {
 		console.log("logging out..");	
 
 		res.clearCookie("session-tok");

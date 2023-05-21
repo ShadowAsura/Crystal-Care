@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const core = require("./controller/core.js");
-const userController = require("./controller/userController.js");
+const core 				= require("./controller/core.js");
+const userController 	= require("./controller/userController.js");
 const profileController = require("./controller/profileController.js");
+const threadController 	= require("./controller/threadController.js");
 
 /*
 const messageController = require("./controller/messageController.js");
@@ -23,11 +24,20 @@ router.post('/profile/patient', profileController.getPatient);
 router.post('/profile/edit', 	profileController.edit);
 
 /*
-router.post('/message/get', auth, messageController.get);
-router.post('/message/put', auth, messageController.put);
+Thread Make (title)
+Thread Add (ID, member)
+Load thread (ID) [load messages, start ws]
+*/
+
+router.put ('/thread/put', 			 threadController.put);
+router.post('/thread/:threadId/add', threadController.addUser);
+router.post('/thread/:threadId/get', threadController.get);
+
+/*
 router.post('/documents/get', auth, documentController.get);
 router.post('/documents/put', auth, documentController.post);
 
+/*
 router.post('/analysis', auth, analysisController.get);
 */
 
