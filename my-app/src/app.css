@@ -1,3 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+  .wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;    
+    margin: 0;
+  }
+
+  .description {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .main_image:hover {
+    transform: scale(1.1)
+  }
+
+  .main_image {
+    width: 20%;
+    margin-top: 50px;
+    transition: 0.2s
+  }
+
+  .title:hover {
+    transform: scale(1.1);
+    text-decoration-color: #3c1f3c;
+    text-underline-offset: 0.4em;
+  }
+
+  .title {
+    font-size: 60px;
+    color: #5a2e5a;
+    transition: 0.2s;
+    text-decoration: underline 0.15em transparent;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 300ms, text-underline-offset 300ms;
+  }
+
+  .logo {
+    width: 60px
+  }
+
+  h3{
+    margin: 15px
+  }
+
+  h4 {
+    margin: 3px
+  }
+
+  * {
+    font-family: 'Raleway', sans-serif;
+
+  }

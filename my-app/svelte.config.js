@@ -10,5 +10,5 @@ const config = {
 	},
 	preprocess: vitePreprocess()
 };
-F
+
 export default config;
