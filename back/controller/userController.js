@@ -55,6 +55,33 @@ fetch("http://localhost:3030/api/secret", {
 }).then(res => res.json()).then(console.log)
  */
 
+/*
+#for cross site requests
+
+await fetch("http://localhost:3030/api/login", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        name: "dwan the rock juanson",
+        password: "1pss234"
+    })
+});
+
+await fetch("http://localhost:3030/api/thread/put", {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        threadName: "How will my legacy be affected?",
+    })
+})
+ */
+
 exports.register = [
 	body("name")
 		.exists()
@@ -81,6 +108,7 @@ exports.register = [
 
 		const b = req.body;
 		const user = {
+			displayName: b.displayName || "no name set",
 			name: b.name,
 			age: b.age,
 			password: await argon2.hash(b.password),
@@ -90,7 +118,7 @@ exports.register = [
 		// If user already exists
 		if (await coll.findOne({name: user.name}) != null) 
 			return res.status(400).send({errors: `User named '${user.name}' already exists.`});
-		
+
 		// Insert to db
 		user._id = (await coll.insertOne(user)).insertedId;
 
@@ -122,13 +150,22 @@ exports.login = [
 		if (!user) 
 			return res.status(400).send({errors: `No user named '${user.name}'.`});
 
-		if (!argon2.verify(user.password, b.password))
+		if (!(await argon2.verify(user.password, b.password)))
 			return res.status(400).send({errors: `Password incorrect.`});
 
 		// Authenticated, generate token.
-		res.cookie("session-tok", user.name, { maxAge: 360000, signed: true });
+		// session token shouldn't be just user name otherwise if cookie is stolen, it can be reused forever
+		// but not a big deal here ig
+		res.cookie("session-tok", user.name, 
+			{
+				maxAge: 360000,
+				signed: true,
+				sameSite: 'none',
+				secure: true
+			}
+		);
 
-		return res.status(201).json({ name: user.name, _id: user._id });
+		return res.status(204).json({ name: user.name, _id: user._id });
 	}
 ];
 
@@ -138,6 +175,6 @@ exports.logout = [
 		console.log("logging out..");	
 
 		res.clearCookie("session-tok");
-		return res.status(201).end();
+		return res.status(200).end();
 	}
 ];

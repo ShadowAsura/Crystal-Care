@@ -1,7 +1,7 @@
 <div class="wrapper"> 
-    <img class="main_image" src="/images/crystal.png" alt="Crystal logo"/>    
+    <img class="main_image" src="/images/crystal.png" alt="Crystal logo"/>
     <h1><a href="/about" class="title">crystal care</a></h1>
-</div> 
+</div>
 
 <div class="description">
   <h3>Designed for <b>Steel City Code Hacks 2023</b> by </h3>
