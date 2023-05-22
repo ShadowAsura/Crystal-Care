@@ -165,7 +165,7 @@ exports.login = [
 			}
 		);
 
-		return res.status(201).json({ name: user.name, _id: user._id });
+		return res.status(204).json({ name: user.name, _id: user._id });
 	}
 ];
 
@@ -175,6 +175,6 @@ exports.logout = [
 		console.log("logging out..");	
 
 		res.clearCookie("session-tok");
-		return res.status(201).end();
+		return res.status(200).end();
 	}
 ];

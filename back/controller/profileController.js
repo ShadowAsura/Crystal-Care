@@ -93,6 +93,6 @@ exports.edit = [
 		const result = await profiles.updateOne(filter, update);
 		console.log(result);
 
-		return res.status(201).json({"result": "success"});
+		return res.status(204).end();
 	}
 ];
