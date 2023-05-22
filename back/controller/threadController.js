@@ -28,6 +28,7 @@ exports.put = [
 
 		// Create thread
 		const b = req.body;
+		console.log(b.user)
 		const thread = {
 			users: [new ObjectId(b.user.id)],
 			name: b.threadName,

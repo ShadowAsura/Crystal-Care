@@ -2,16 +2,10 @@ const { body, param, validationResult } = require('express-validator');
 const { ObjectId } = require('mongodb');
 const db = require("../db.js").db("Medicare");
 
+//todo: protect against csrf by looking at referrer header? idk
+
 // Authenticates a user based on session token/cookie & claimed username
 exports.authenticator = [
-	body("user.name")
-		.exists()
-		.isString()
-		.withMessage("No user name claims found."),
-	body("user.id")
-		.exists()
-		.isString()
-		.withMessage("No user id claims found."),
 	async (req, res, next) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) 
@@ -20,10 +14,24 @@ exports.authenticator = [
 		console.log("authenticating..");
 
 		const cookie = req.signedCookies['session-tok'];
-		if (!cookie || cookie != req.body.user.name)
+		console.log(cookie)
+		if (!cookie)
 			return res.status(401).json({ error: "Invalid cookie"});
 
-		console.log("authenitcated.");
+		//find user in db
+		let found_user = await db.collection("users").findOne({
+			name: cookie
+		});
+
+		console.log(found_user)
+
+		if (!found_user) {
+			return res.status(401).json({ error: "User with that name not found"});
+		}
+
+		req.body.user = found_user;
+
+		console.log("authenticated.");
 		next();
 	}
 ];

@@ -9,7 +9,10 @@ const router = require('./api.js');
 const client = require('./db.js');
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+	origin: ["http://localhost:5173"],
+	credentials: true
+}));
 app.use(cookieParser(process.env.COOKIE_SECRET))
 app.use('/api/', router);
 
