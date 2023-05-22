@@ -10,6 +10,10 @@
     justify-content: center;
     flex-direction: column;    
     margin: 0;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
   }
 
   .description {
@@ -49,14 +53,23 @@
   }
 
   h3{
-    margin: 15px
+    margin: 10px
   }
 
   h4 {
-    margin: 3px
+    margin: 0px
+  }
+
+  .button_holder {
+    flex-direction: row;
+  }
+
+  .btn-info {
+    margin: 5px;
   }
 
   * {
     font-family: 'Raleway', sans-serif;
+    overflow-y: hidden;
 
   }
