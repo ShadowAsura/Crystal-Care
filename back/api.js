@@ -27,9 +27,10 @@ router.post('/profile/edit', 	profileController.edit);
 
 router.put ('/thread/put', 			 threadController.put); 		// Spawns a new thread with only the client
 router.post('/thread/:threadId/add', threadController.addUser); 	// Adds user to a thread. The client must be in the thread in question
-router.get ('/thread/:threadId/get', threadController.get); 		// Returns the thread's document. Only relevant information are the mails and
-																	// members, the rest are ObjectID's and is illegible to the client. 
-																	// (I might make it so it only returns the mails & members later)
+router.post('/thread/:threadId', threadController.post); 	// Adds a message
+router.get ('/thread/:threadId', threadController.get); 		// Returns the thread's document. Only relevant information are the mails and
+																// members, the rest are ObjectID's and is illegible to the client. 
+																// (I might make it so it only returns the mails & members later)
 
 /*
 router.post('/documents/get', auth, documentController.get);

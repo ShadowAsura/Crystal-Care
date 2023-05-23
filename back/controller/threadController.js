@@ -88,10 +88,6 @@ exports.get = [
 	core.authenticator,
 	...core.inThread,
 	async (req, res) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) 
-			return res.status(400).json({ errors: errors.array() });
-
 		const filter = { _id: new ObjectId(req.params.threadId) };
 		const thread = await threads.findOne(filter); 
 
@@ -99,6 +95,36 @@ exports.get = [
 	}
 ];
 
+exports.post = [
+	core.authenticator,
+	...core.inThread,
+	body("message")
+		.exists()
+		.isString()
+		.withMessage("Invalid message"),
+	async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) 
+			return res.status(400).json({ errors: errors.array() });
+
+		const b = req.body;
+		const user = b.user;
+		const message = {
+			senderId: user._id,
+			senderName: user.name,
+			text: b.message
+		};
+		const filter = { _id: new ObjectId(req.params.threadId) };
+		const update = { 
+			$push: {
+				messages: message 
+			}
+		};
+		await threads.updateOne(filter, update);
+
+		return res.status(200).end();
+	}
+]
 
 /*
 Register Curry
@@ -127,10 +153,23 @@ fetch(`http://localhost:3030/api/thread/${TID}/add`, {
 }).then(res => res.json()).then(console.log);
 
 # Get:
-fetch(`http://localhost:3030/api/thread/${TID}/get`, {
+fetch(`http://localhost:3030/api/thread/${TID}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
 }).then(res => res.json()).then(console.log);
+
+# Post:
+fetch(`http://localhost:3030/api/thread/${TID}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+	body: JSON.stringify({
+		message: "wenomechuinasama"
+	})
+});
+
+
  */
