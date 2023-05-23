@@ -32,7 +32,7 @@ exports.getDoctor = [
 ];
 
 exports.getPatient = [
-	...auth,
+	auth,
 	query("name")
 		.exists()
 		.isString()
@@ -57,7 +57,7 @@ exports.getPatient = [
 
 
 exports.edit = [
-	...auth,
+	auth,
 	body("profile")
 		.exists()
 		.isObject()

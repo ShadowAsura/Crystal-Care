@@ -5,36 +5,26 @@ const db = require("../db.js").db("Medicare");
 //todo: protect against csrf by looking at referrer header? idk
 
 // Authenticates a user based on session token/cookie & claimed username
-exports.authenticator = [
-	async (req, res, next) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) 
-			return res.status(400).json({ errors: errors.array() });
+exports.authenticator = async (req, res, next) => {
+	console.log("authenticating..");
 
-		console.log("authenticating..");
+	const cookie = req.signedCookies['session-tok'];
+	console.log(cookie)
+	if (!cookie)
+		return res.status(401).json({ error: "Invalid cookie"});
 
-		const cookie = req.signedCookies['session-tok'];
-		console.log(cookie)
-		if (!cookie)
-			return res.status(401).json({ error: "Invalid cookie"});
+	//find user in db
+	let user = await db.collection("users").findOne({ name: cookie });
+	console.log(user)
+	if (!user) 
+		return res.status(401).json({ error: "User with that name not found"});
 
-		//find user in db
-		let found_user = await db.collection("users").findOne({
-			name: cookie
-		});
+	delete user.password; 
+	req.body.user = user;
 
-		console.log(found_user)
-
-		if (!found_user) {
-			return res.status(401).json({ error: "User with that name not found"});
-		}
-
-		req.body.user = found_user;
-
-		console.log("authenticated.");
-		next();
-	}
-];
+	console.log("authenticated.");
+	next();
+};
 
 // Authorizes only if the user is in the given thread
 exports.inThread = [
@@ -56,10 +46,7 @@ exports.inThread = [
 			
 		// Check if in thread
 		console.log(`checking if in thread ${thread.name}`);
-		const query = {_id: new ObjectId(req.body.user.id)}; 
-		const user = await db.collection("users").findOne(query);
-
-
+		const user = req.body.user;
 		if (!user.threads || user.threads.filter(id => thread._id.equals(id)).length == 0)  
 			return res.status(403).send(`Not in thread ${thread.name}`);
 

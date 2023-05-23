@@ -3,84 +3,7 @@ const core = require("./core.js");
 const { body, validationResult } = require('express-validator');
 const argon2 = require('argon2');
 
-/* 
-Fetch Tester:
 
-# Register:
-fetch("http://localhost:3030/api/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-        name: "le bron james",
-        age: 69,
-        password: "1234",
-		patient: true,
-    })
-});
-
-# Login:
-fetch("http://localhost:3030/api/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-        name: "le bron james",
-        password: "1234"
-    })
-});
-
-# Logout (clear cookie):
-fetch("http://localhost:3030/api/logout", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ user: {
-        name: "le bron james",
-    }})
-})
-
-# Test of authorized 
-fetch("http://localhost:3030/api/secret", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ user: {
-        name: "le bron james",
-    }})
-}).then(res => res.json()).then(console.log)
- */
-
-/*
-#for cross site requests
-
-await fetch("http://localhost:3030/api/login", {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-        name: "dwan the rock juanson",
-        password: "1pss234"
-    })
-});
-
-await fetch("http://localhost:3030/api/thread/put", {
-    method: "PUT",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-        threadName: "How will my legacy be affected?",
-    })
-})
- */
 
 exports.register = [
 	body("name")
@@ -165,7 +88,14 @@ exports.login = [
 			}
 		);
 
-		return res.status(204).json({ name: user.name, _id: user._id });
+		return res.status(204).end();
+	}
+];
+
+exports.get = [
+	core.authenticator,
+	async (req, res) => { 
+		return res.status(200).json(req.body.user);
 	}
 ];
 
@@ -178,3 +108,57 @@ exports.logout = [
 		return res.status(200).end();
 	}
 ];
+
+/* 
+Tests:
+
+# Register:
+fetch("http://localhost:3030/api/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        name: "le bron james",
+        age: 69,
+        password: "1234",
+		patient: true,
+    })
+});
+
+# Login:
+fetch("http://localhost:3030/api/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        name: "le bron james",
+        password: "1234"
+    })
+});
+
+# Get self
+fetch("http://localhost:3030/api/self", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    }
+}).then(res => res.json()).then(console.log);
+
+# Logout (clear cookie):
+fetch("http://localhost:3030/api/logout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+})
+
+# Test if authorized 
+fetch("http://localhost:3030/api/secret", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+}).then(res => res.json()).then(console.log)
+ */

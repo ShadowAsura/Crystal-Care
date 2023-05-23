@@ -16,7 +16,7 @@ exports.addToUser = async (userId, threadId) => {
 }
 
 exports.put = [
-	...core.authenticator,
+	core.authenticator,
 	body("threadName")
 		.exists()
 		.isString()
@@ -44,7 +44,7 @@ exports.put = [
 ];
 
 exports.addUser = [
-	...core.authenticator,
+	core.authenticator,
 	...core.inThread,
 	body("newUserName")
 		.exists()
@@ -85,7 +85,7 @@ exports.addUser = [
 ];
 
 exports.get = [
-	...core.authenticator,
+	core.authenticator,
 	...core.inThread,
 	async (req, res) => {
 		const errors = validationResult(req);
@@ -111,10 +111,6 @@ fetch("http://localhost:3030/api/thread/put", {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-		user: {
-        	name: "le bron james",
-			id: ID
-		},
         threadName: "How will my legacy be affected?",
     })
 }).then(res => res.json()).then(console.log);
@@ -126,25 +122,15 @@ fetch(`http://localhost:3030/api/thread/${TID}/add`, {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-		user: {
-        	name: "le bron james",
-			id: ID
-		},
         newUserName: "steph curry",
     })
 }).then(res => res.json()).then(console.log);
 
 # Get:
 fetch(`http://localhost:3030/api/thread/${TID}/get`, {
-    method: "POST",
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-		user: {
-        	name: "le bron james",
-			id: ID
-		}
-    })
 }).then(res => res.json()).then(console.log);
  */
