@@ -1,5 +1,4 @@
-# SCC2023
-## Project Title
+## Crystal Care
 
 A remote medicare suite, including a patient client, doctor client, a pharmacy client, and a chatbot pre-trained in symptom trends.
 
