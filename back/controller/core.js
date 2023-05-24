@@ -2,6 +2,10 @@ const { body, param, validationResult } = require('express-validator');
 const { ObjectId } = require('mongodb');
 const db = require("../db.js").db("Medicare");
 
+function authError (res, e) {
+	return res.status(403).json({ error: e });
+}
+
 //todo: protect against csrf by looking at referrer header? idk
 
 // Authenticates a user based on session token/cookie & claimed username
@@ -64,5 +68,88 @@ exports.makeProfileFor = async user => {
 	const id = (await db.collection("profiles").insertOne(profile)).insertedId;
 	console.log(`created profile for user named ${user.name}`);
 
+	const filter = { _id: user._id };
+	const update = {
+		$set: {	
+			profileId: id
+		}
+	};
+	await db.collection("users").updateOne(filter, update);
+
 	return id; 
 }
+
+// Passes only if is self 
+exports.isSelf = [
+	param("userId")
+		.exists()
+		.isString()
+		.withMessage("No 'userId' parameter"),
+	async (req, res, next) => {
+		const user 	 = req.body.user;
+		const userId = req.body.userId;
+		if (user._id.toString() == userId) 
+			return next();
+		else 
+			return authError(res, "Not self");
+	}
+];
+
+// Passes only if is provider.
+exports.isProvider = [
+	param("userId")
+		.exists()
+		.isString()
+		.withMessage("No 'userId' parameter"),
+	async (req, res, next) => {
+		const userId = req.params.userId;
+		const user   = req.body.user;
+		if (user.patient == true) 
+			return authError(res, "Not a provider");
+
+		// Get profile
+		const profile = await db.collection("profiles").findOne({ userId: new ObjectId(userId) });
+		if (!profile) 
+			return authError(res, "None such user");
+		if (profile.patient == false) 
+			return authError(res, "Target user is a provider");
+
+		// If not in provider list
+		if (!profile.providers || profile.providers.filter(p => p.equals(user._id)).length == 0)
+			return authError(res, "Not a provider of target user" );
+
+		console.log("identified as provider");
+		next();
+	}
+];
+
+// Passes only if is provider or is self
+exports.isSelfOrProvider = [
+	param("userId")
+		.exists()
+		.isString()
+		.withMessage("No 'userId' parameter"),
+	async (req, res, next) => {
+		const userId = req.params.userId;
+		const user   = req.body.user;
+		if (user._id.toString() == userId) 
+			return next();
+
+		if (user.patient == true) 
+			return authError(res, "Not a provider");
+
+		// Get profile
+		const profile = await db.collection("profiles").findOne({ userId: new ObjectId(userId) });
+		if (!profile) 
+			return authError(res, "None such user");
+		if (profile.patient == false) 
+			return authError(res, "Target user is a provider");
+
+		// If not in provider list
+		if (!profile.providers || profile.providers.filter(p => p.equals(user._id)).length == 0)
+			return authError(res, "Not a provider of target user" );
+
+		console.log("identified as provider");
+		next();
+	}
+];

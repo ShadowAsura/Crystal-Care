@@ -1,6 +1,6 @@
 const coll = require("../db.js").db("Medicare").collection("users");
 const core = require("./core.js");
-const { body, validationResult } = require('express-validator');
+const { query, body, validationResult } = require('express-validator');
 const argon2 = require('argon2');
 
 
@@ -88,11 +88,27 @@ exports.login = [
 			}
 		);
 
+		console.log("logged in");
 		return res.status(204).end();
 	}
 ];
 
 exports.get = [
+	query("name")
+		.exists()
+		.isString()
+		.withMessage("No query param"),
+	async (req, res) => {
+		const name = req.query.name;	
+		const user = await coll.findOne({name});
+		if (!user) 
+			return res.status(404).json({errors: `none such user '${name}'`});
+
+		return res.status(200).json(user);
+	}
+];
+
+exports.getSelf = [
 	core.authenticator,
 	async (req, res) => { 
 		return res.status(200).json(req.body.user);
@@ -113,7 +129,7 @@ exports.logout = [
 Tests:
 
 # Register:
-fetch("http://localhost:3030/api/register", {
+await fetch("http://localhost:3030/api/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -124,10 +140,10 @@ fetch("http://localhost:3030/api/register", {
         password: "1234",
 		patient: true,
     })
-});
+}).then(res => res.status);
 
 # Login:
-fetch("http://localhost:3030/api/login", {
+await fetch("http://localhost:3030/api/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -136,29 +152,29 @@ fetch("http://localhost:3030/api/login", {
         name: "le bron james",
         password: "1234"
     })
-});
+}).then(res => res.status);
 
 # Get self
-fetch("http://localhost:3030/api/self", {
+const user = await fetch("http://localhost:3030/api/self", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     }
-}).then(res => res.json()).then(console.log);
+}).then(res => res.json());
 
 # Logout (clear cookie):
-fetch("http://localhost:3030/api/logout", {
+await fetch("http://localhost:3030/api/logout", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-})
+}).then(res => res.status);
 
 # Test if authorized 
-fetch("http://localhost:3030/api/secret", {
+await fetch("http://localhost:3030/api/secret", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-}).then(res => res.json()).then(console.log)
- */
+}).then(res => res.json())
+*/

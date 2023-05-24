@@ -81,6 +81,10 @@ exports.edit = [
 		const update = { $set: {} };
 		const add_if = field => { if (b.profile[field]) update.$set[field] = b.profile[field]; };
 		if (profile.patient) {
+			if (b.profile.providers) {
+				for (let i=0; i<b.profile.providers.length; i++)
+					b.profile.providers[i] = new ObjectId(b.profile.providers[i]);
+			}
 			add_if("providers"); 
 			add_if("prescriptions"); 
 			add_if("documents"); 
@@ -96,3 +100,39 @@ exports.edit = [
 		return res.status(204).end();
 	}
 ];
+
+/*
+Tests:
+
+# Login
+await fetch("http://localhost:3030/api/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        name: "lebron james",
+        password: "lakers",
+    })
+}).then(res => console.log(res.status))
+
+# Get ID
+const user = await fetch("http://localhost:3030/api/self", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    }
+}).then(res => res.json());
+
+# Update Profile
+await fetch("http://localhost:3030/api/profile/edit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({profile: {
+        _id: user.profileId,
+		dummy: "hi"
+    }})
+}).then(res => res.status);
+ */

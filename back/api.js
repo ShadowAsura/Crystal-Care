@@ -1,14 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-const core 				= require("./controller/core.js");
-const userController 	= require("./controller/userController.js");
-const profileController = require("./controller/profileController.js");
-const threadController 	= require("./controller/threadController.js");
+const core = require("./controller/core.js");
+const userController 	 = require("./controller/userController.js");
+const profileController  = require("./controller/profileController.js");
+const threadController 	 = require("./controller/threadController.js");
+const documentController = require("./controller/documentController.js");
 
 /*
-const messageController = require("./controller/messageController.js");
-const documentController = require("./controller/documentController.js");
 const analysisController = require("./controller/analysisController.js");
 */
 
@@ -18,7 +17,8 @@ router.get('/secret', core.authenticator, (_, res) => res.json({"elsa": "go away
 router.post('/register', userController.register);
 router.post('/login', 	 userController.login);
 router.post('/logout', 	 userController.logout);
-router.get ('/self', userController.get);
+router.get ('/self', userController.getSelf);
+router.get ('/user', userController.get);
 
 router.get ('/profile/doctor', 	profileController.getDoctor);
 router.get ('/profile/patient', profileController.getPatient);
@@ -32,9 +32,9 @@ router.get ('/thread/:threadId', threadController.get); 		// Returns the thread'
 																// members, the rest are ObjectID's and is illegible to the client. 
 																// (I might make it so it only returns the mails & members later)
 
-/*
-router.post('/documents/get', auth, documentController.get);
-router.post('/documents/put', auth, documentController.post);
+
+router.get('/documents/:userId', documentController.get);
+router.put('/documents/:userId', documentController.put);
 
 /*
 router.post('/analysis', auth, analysisController.get);
