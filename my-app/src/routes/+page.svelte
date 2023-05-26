@@ -11,9 +11,9 @@
   <h4>Sriram Loganathan.</h4>
 
   <div class="button_holder">
-    <button type="button" class="btn btn-info">Login</button>
-    <button type="button" class="btn btn-info">Sign Up</button>
-  </div>
+    <a href="/login" type="button" class="btn btn-info">Login</a>
+    <a href="/signup" type="button" class="btn btn-info">Sign Up</a>
+  </div>6
 </div>
 
 <!--make the shit scroll in uwu; click on the crystal and make it reroute to home page?-->
